@@ -1,0 +1,193 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
+  --border: color-mix(in srgb, currentColor 15%, transparent);
+  --bg-soft: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 2rem 1rem 4rem;
+  line-height: 1.6;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page__header h1 {
+  margin-bottom: 0.25rem;
+  font-size: 1.6rem;
+}
+
+.page__lead {
+  margin-top: 0;
+  opacity: 0.75;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-soft);
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.guest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.guest-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.guest-field__label {
+  font-weight: 600;
+}
+
+.guest-field__note {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.guest-field input {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+}
+
+.guest-summary {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.date-select select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+}
+
+.building-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.building-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.building-card h3 {
+  margin: 0;
+}
+
+.building-card__base {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.field select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.field-note {
+  margin: -0.3rem 0 0;
+  font-size: 0.78rem;
+  opacity: 0.65;
+}
+
+.building-card__result {
+  margin-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.6rem;
+}
+
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.price-table td {
+  padding: 0.25rem 0;
+}
+
+.price-table__num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.building-card__total {
+  text-align: right;
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0;
+}
+
+.building-card__warning {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.copy-button {
+  margin-top: 0.25rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.copy-button:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.copy-button--done {
+  border-color: color-mix(in srgb, limegreen 60%, currentColor);
+}
+
+.disclaimer {
+  font-size: 0.78rem;
+  opacity: 0.6;
+}
