@@ -101,6 +101,7 @@ function render() {
         </p>
         <div class="guest-names">
           <span class="guest-names__title">全宿泊者名（ひらがな）</span>
+          <p class="field-note">※後ほど情報取りまとめて手配する際に入力していただきます</p>
           ${total === 0 ? `<p class="field-note">宿泊人数を入力すると名前欄が表示されます。</p>` : guestNameRows()}
         </div>
       </section>
