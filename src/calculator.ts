@@ -59,3 +59,20 @@ export function calculatePrice(
 
   return { perPersonBase, lines, total }
 }
+
+export interface MultiDatePriceResult {
+  perDate: PriceResult[]
+  total: number
+}
+
+/** 選択された宿泊日ぶんの building（棟IDは同じで基本料金だけが日付ごとに異なる）を合算する */
+export function calculatePriceAcrossDates(
+  buildingsPerDate: Building[],
+  dinner: DinnerOption | null,
+  roomType: RoomType,
+  guests: GuestCounts,
+): MultiDatePriceResult {
+  const perDate = buildingsPerDate.map((building) => calculatePrice(building, dinner, roomType, guests))
+  const total = perDate.reduce((sum, result) => sum + result.total, 0)
+  return { perDate, total }
+}

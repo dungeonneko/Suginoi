@@ -5,6 +5,8 @@ export interface GuestCounts {
   infant: number // 2歳以下乳幼児: 無料
 }
 
+export type GuestNames = Record<keyof GuestCounts, string[]>
+
 export interface DinnerOption {
   id: string
   label: string
@@ -32,5 +34,6 @@ export interface Building {
 export interface StayDate {
   id: string
   label: string
+  description: string
   buildings: Building[]
 }

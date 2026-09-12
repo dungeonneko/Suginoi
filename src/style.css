@@ -88,6 +88,89 @@ body {
   font-size: 1rem;
 }
 
+.guest-names {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.guest-names__title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.guest-name-row {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.guest-name-row__label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.guest-name-row__input {
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.settlement-note {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.date-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.date-checkbox {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.6rem;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+}
+
+.date-checkbox__label {
+  font-weight: 600;
+}
+
+.date-checkbox__desc {
+  grid-column: 2;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.date-group {
+  margin-bottom: 1.5rem;
+}
+
+.date-group:last-child {
+  margin-bottom: 0;
+}
+
+.date-group__title {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+  opacity: 0.85;
+}
+
 .building-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -154,6 +237,17 @@ body {
 .price-table__num {
   text-align: right;
   white-space: nowrap;
+}
+
+.price-table__date-row td {
+  padding-top: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.price-table__date-row:first-child td {
+  padding-top: 0;
 }
 
 .building-card__total {
