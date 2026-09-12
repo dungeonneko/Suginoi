@@ -109,7 +109,7 @@ function render() {
         <h2>2. 精算方法について</h2>
         <ul class="settlement-note">
           <li>披露宴参加者のみ宿泊の場合、精算はこちらで事前に済ませる予定です</li>
-          <li>ご家族と宿泊の場合、精算はチェックアウト時に参加者本人様にしていただき、本人様分の宿泊代をお車代に追加する予定です</li>
+          <li>ご家族と宿泊の場合、精算はチェックアウト時に参加者本人様にしていただき、本人様分の宿泊代をお車代に追加予定です</li>
           <li>上記方法で問題ありそうでしたらご連絡ください</li>
         </ul>
       </section>
@@ -133,6 +133,7 @@ function render() {
 
       <section class="panel">
         <h2>4. 棟とオプションを比較</h2>
+        <p>リンク：<a href="https://suginoi.orixhotelsandresorts.com/contents/nijikan/">虹館（リーズナブル）</a>／<a href="https://suginoi.orixhotelsandresorts.com/contents/hoshikan/">星館（会場と同じ棟で移動ラク）</a>／<a href="https://suginoi.orixhotelsandresorts.com/contents/sorakan/">宙館</a></p>
         ${
           selectedDates.length === 0
             ? `<p class="building-card__warning">宿泊日を1つ以上選択してください。</p>`
