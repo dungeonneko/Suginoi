@@ -20,6 +20,7 @@ const state = {
   guests: { adults: 2, elementary: 0, toddler: 0, infant: 0 } as GuestCounts,
   guestNames: { adults: [], elementary: [], toddler: [], infant: [] } as GuestNames,
   selectedDateIds: new Set<string>([stayDates[0].id]),
+  settlementConfirmed: false,
   // 建物ごとの選択状態（日付をまたいで共有・1つだけ選ぶ）
   selection: {} as Record<string, { dinnerId: string | null; roomTypeId: string | null }>,
 }
@@ -114,10 +115,15 @@ function render() {
           <li>お一人様宿泊できる部屋数が限られていますので、ご家族連れでない仲の良い参加者は部屋をまとめさせていただく場合があります</li>
           <li>上記問題ありそうでしたらご連絡ください</li>
         </ul>
+        <label class="settlement-confirm">
+          <input type="checkbox" id="settlement-confirm" ${state.settlementConfirmed ? 'checked' : ''} />
+          <span>上記内容確認しました</span>
+        </label>
       </section>
 
       <section class="panel">
         <h2>3. 宿泊日</h2>
+        <p class="field-note">宿泊料金はブライダル特別価格です。通常料金とは異なる場合があります。</p>
         <div class="date-checkbox-list">
           ${stayDates
             .map(
@@ -217,6 +223,7 @@ function buildPlanText(
     `人数：${guestLines.join('、') || 'なし'}`,
     `宿泊者名：`,
     ...(nameLines.length > 0 ? nameLines : ['　未入力']),
+    `精算方法について：${state.settlementConfirmed ? '確認済み' : '未確認'}`,
   ]
 
   if (occupancy === 0) {
@@ -362,6 +369,10 @@ function attachEvents() {
       const index = Number(input.dataset.guestNameIndex)
       state.guestNames[key][index] = input.value
     })
+  })
+
+  app.querySelector<HTMLInputElement>('#settlement-confirm')?.addEventListener('change', (e) => {
+    state.settlementConfirmed = (e.target as HTMLInputElement).checked
   })
 
   app.querySelectorAll<HTMLInputElement>('input[data-date]').forEach((checkbox) => {

@@ -121,6 +121,15 @@ body {
   font-size: 0.9rem;
 }
 
+.settlement-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
 .settlement-note {
   margin: 0;
   padding-left: 1.2rem;
