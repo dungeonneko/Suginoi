@@ -100,17 +100,34 @@ function guestNameRows(): string {
   return rows.join('')
 }
 
-function renderBabyOptions(): string {
+function babyBedFilterNote(occupancy: number): string {
+  if (state.babyBedOption === 'crib') {
+    const notes = ['虹館：全室選択不可', '宙館：「スタンダードツイン山」選択不可']
+    if (occupancy === 4) {
+      notes.push('宙館：「プレミアムスタンダード海洋室」選択不可（定員4名）')
+      notes.push('星館：「スタンダード山／海」選択不可（定員4名）')
+    }
+    return notes.join('、')
+  }
+  if (state.babyBedOption === 'futon') {
+    return '宙館の「プレミアムスタンダード（山和洋）」以外は選択不可'
+  }
+  return ''
+}
+
+function renderBabyOptions(occupancy: number): string {
+  const filterNote = babyBedFilterNote(occupancy)
   return `
     <div class="baby-options">
       <label class="field">
-        <span>ベビーベッドまたは畳に布団の宿泊希望（ご利用可能な部屋が表示されます）</span>
+        <span>ベビーベッドまたは畳に布団の宿泊希望</span>
         <select id="baby-bed-option">
           ${BABY_BED_OPTIONS.map(
             (opt) => `<option value="${opt.value}" ${state.babyBedOption === opt.value ? 'selected' : ''}>${opt.label}</option>`,
           ).join('')}
         </select>
       </label>
+      ${filterNote ? `<p class="field-note">${filterNote}</p>` : ''}
 
       <div class="baby-goods">
         <span class="baby-goods__title">ベビーグッズの無料貸出（客室）</span>
@@ -157,7 +174,7 @@ function render() {
           <p class="field-note">※後ほど情報取りまとめて手配する際に入力していただきます</p>
           ${total === 0 ? `<p class="field-note">宿泊人数を入力すると名前欄が表示されます。</p>` : guestNameRows()}
         </div>
-        ${state.guests.infant > 0 ? renderBabyOptions() : ''}
+        ${state.guests.infant > 0 ? renderBabyOptions(occupancy) : ''}
       </section>
 
       <section class="panel">
