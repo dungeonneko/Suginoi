@@ -193,6 +193,7 @@ function render() {
 
       <section class="panel">
         <h2>3. 宿泊日</h2>
+        <p class="field-note">宿泊料金はブライダル価格です。通常料金とは異なる場合があります。</p>
         <div class="date-checkbox-list">
           ${stayDates
             .map(
