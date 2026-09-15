@@ -24,6 +24,8 @@ const BABY_BED_OPTIONS: { value: BabyBedOption; label: string }[] = [
   { value: 'futon', label: '畳に布団を希望' },
 ]
 
+const BABY_CRIB_PRICE_PER_NIGHT = 3000
+
 const BABY_GOODS_ITEMS: { id: string; label: string }[] = [
   { id: 'babyBath', label: 'ベビーバス' },
   { id: 'diaperBin', label: 'オムツ用ゴミ箱' },
@@ -219,6 +221,11 @@ interface ResolvedPlan {
 
 /** buildingId に対応する Building オブジェクトを、選択中の宿泊日ごとに集める（基本料金以外は共通） */
 /** ベビーベッド希望時に選択不可となる部屋タイプかどうか */
+/** ベビーベッド希望時の追加料金（選択中の宿泊日ぶん） */
+function babyBedSurcharge(nightsCount: number): number {
+  return state.babyBedOption === 'crib' ? BABY_CRIB_PRICE_PER_NIGHT * nightsCount : 0
+}
+
 function isExcludedForBabyBed(buildingId: string, roomTypeId: string, occupancy: number): boolean {
   if (state.babyBedOption === 'futon') {
     // 宙館「プレミアムスタンダード（山和洋）」のみ選択可能
@@ -334,7 +341,11 @@ function buildPlanText(
       lines.push(`　${line.categoryLabel} × ${line.count}　${yen.format(line.unitPrice)} × ${line.count} = ${yen.format(line.subtotal)}`)
     }
   }
-  lines.push(`合計：${yen.format(result.total)}`)
+  const surcharge = babyBedSurcharge(selectedDates.length)
+  if (surcharge > 0) {
+    lines.push(`　ベビーベッド　${yen.format(BABY_CRIB_PRICE_PER_NIGHT)} × ${selectedDates.length}泊 = ${yen.format(surcharge)}`)
+  }
+  lines.push(`合計：${yen.format(result.total + surcharge)}`)
 
   return lines.join('\n')
 }
@@ -357,6 +368,7 @@ function renderBuildingCard(buildingId: string, selectedDates: StayDate[], occup
       return `<p class="building-card__warning">ご希望に添える部屋タイプがありません。</p>`
     }
     const result = calculatePriceAcrossDates(buildingsPerDate, dinner, roomType, state.guests)
+    const surcharge = babyBedSurcharge(selectedDates.length)
     return `
       <table class="price-table">
         ${result.perDate
@@ -379,8 +391,19 @@ function renderBuildingCard(buildingId: string, selectedDates: StayDate[], occup
         `,
           )
           .join('')}
+        ${
+          surcharge > 0
+            ? `
+          <tr>
+            <td>ベビーベッド × ${selectedDates.length}泊</td>
+            <td class="price-table__num">${yen.format(BABY_CRIB_PRICE_PER_NIGHT)}</td>
+            <td class="price-table__num">${yen.format(surcharge)}</td>
+          </tr>
+        `
+            : ''
+        }
       </table>
-      <p class="building-card__total">合計 <strong>${yen.format(result.total)}</strong></p>
+      <p class="building-card__total">合計 <strong>${yen.format(result.total + surcharge)}</strong></p>
     `
   })()
 
