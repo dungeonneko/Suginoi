@@ -16,11 +16,32 @@ const GUEST_CATEGORY_ORDER: (keyof GuestCounts)[] = ['adults', 'elementary', 'to
 // 棟の一覧（IDと名称は日付をまたいで共通）
 const BUILDING_LIST = stayDates[0].buildings.map((b) => ({ id: b.id, name: b.name }))
 
+type BabyBedOption = 'none' | 'crib' | 'futon'
+
+const BABY_BED_OPTIONS: { value: BabyBedOption; label: string }[] = [
+  { value: 'none', label: '不要' },
+  { value: 'crib', label: 'ベビーベッド（￥3,000/泊）を希望' },
+  { value: 'futon', label: '畳に布団を希望' },
+]
+
+const BABY_GOODS_ITEMS: { id: string; label: string }[] = [
+  { id: 'babyBath', label: 'ベビーバス' },
+  { id: 'diaperBin', label: 'オムツ用ゴミ箱' },
+  { id: 'stepStool', label: '洗面専用の踏み台' },
+  { id: 'toiletSeat', label: '補助便座' },
+  { id: 'bumbo', label: 'バンボ' },
+  { id: 'bouncer', label: 'バウンサー' },
+  { id: 'wettingSheet', label: 'おねしょシーツ' },
+  { id: 'bedGuard', label: 'ベッドガード(18～60ヵ月)' },
+]
+
 const state = {
   guests: { adults: 2, elementary: 0, toddler: 0, infant: 0 } as GuestCounts,
   guestNames: { adults: [], elementary: [], toddler: [], infant: [] } as GuestNames,
   selectedDateIds: new Set<string>([stayDates[0].id]),
   settlementConfirmed: false,
+  babyBedOption: 'none' as BabyBedOption,
+  babyGoods: Object.fromEntries(BABY_GOODS_ITEMS.map((item) => [item.id, false])) as Record<string, boolean>,
   // 建物ごとの選択状態（日付をまたいで共有・1つだけ選ぶ）
   selection: {} as Record<string, { dinnerId: string | null; roomTypeId: string | null }>,
 }
@@ -77,6 +98,35 @@ function guestNameRows(): string {
   return rows.join('')
 }
 
+function renderBabyOptions(): string {
+  return `
+    <div class="baby-options">
+      <label class="field">
+        <span>ベビーベッドまたは畳に布団の宿泊希望（ご利用可能な部屋が表示されます）</span>
+        <select id="baby-bed-option">
+          ${BABY_BED_OPTIONS.map(
+            (opt) => `<option value="${opt.value}" ${state.babyBedOption === opt.value ? 'selected' : ''}>${opt.label}</option>`,
+          ).join('')}
+        </select>
+      </label>
+
+      <div class="baby-goods">
+        <span class="baby-goods__title">ベビーグッズの無料貸出（客室）</span>
+        <div class="baby-goods__grid">
+          ${BABY_GOODS_ITEMS.map(
+            (item) => `
+            <label class="baby-goods__item">
+              <input type="checkbox" data-baby-goods="${item.id}" ${state.babyGoods[item.id] ? 'checked' : ''} />
+              <span>${item.label}</span>
+            </label>
+          `,
+          ).join('')}
+        </div>
+      </div>
+    </div>
+  `
+}
+
 function render() {
   const occupancy = occupancyCount(state.guests)
   const total = totalGuestCount(state.guests)
@@ -105,6 +155,7 @@ function render() {
           <p class="field-note">※後ほど情報取りまとめて手配する際に入力していただきます</p>
           ${total === 0 ? `<p class="field-note">宿泊人数を入力すると名前欄が表示されます。</p>` : guestNameRows()}
         </div>
+        ${state.guests.infant > 0 ? renderBabyOptions() : ''}
       </section>
 
       <section class="panel">
@@ -123,7 +174,6 @@ function render() {
 
       <section class="panel">
         <h2>3. 宿泊日</h2>
-        <p class="field-note">宿泊料金はブライダル特別価格です。通常料金とは異なる場合があります。</p>
         <div class="date-checkbox-list">
           ${stayDates
             .map(
@@ -168,6 +218,26 @@ interface ResolvedPlan {
 }
 
 /** buildingId に対応する Building オブジェクトを、選択中の宿泊日ごとに集める（基本料金以外は共通） */
+/** ベビーベッド希望時に選択不可となる部屋タイプかどうか */
+function isExcludedForBabyBed(buildingId: string, roomTypeId: string, occupancy: number): boolean {
+  if (state.babyBedOption === 'futon') {
+    // 宙館「プレミアムスタンダード（山和洋）」のみ選択可能
+    return !(buildingId === 'sora' && roomTypeId.startsWith('premYama'))
+  }
+
+  if (state.babyBedOption !== 'crib') return false
+
+  if (buildingId === 'niji') return true // 虹館全室
+  if (buildingId === 'sora') {
+    if (roomTypeId === 'twinYama2') return true // 宙館山側スタンダードツイン
+    if (occupancy === 4 && roomTypeId === 'premUmi4') return true // 宙館海側プレミアムスタンダード（定員4名）
+  }
+  if (buildingId === 'hoshi') {
+    if (occupancy === 4 && (roomTypeId === 'yama4' || roomTypeId === 'umi4')) return true // 星館スタンダード（定員4名）
+  }
+  return false
+}
+
 function resolvePlan(buildingId: string, selectedDates: StayDate[], occupancy: number): ResolvedPlan {
   const sel = state.selection[buildingId]
 
@@ -178,7 +248,11 @@ function resolvePlan(buildingId: string, selectedDates: StayDate[], occupancy: n
   const reference = buildingsPerDate[0]
 
   const availableRoomTypes = reference
-    ? reference.roomTypes.filter((rt) => (rt.isSingle ? occupancy === 1 : occupancy === rt.capacity))
+    ? reference.roomTypes.filter(
+        (rt) =>
+          (rt.isSingle ? occupancy === 1 : occupancy === rt.capacity) &&
+          !isExcludedForBabyBed(buildingId, rt.id, occupancy),
+      )
     : []
 
   // 選択済みが利用可能な範囲から外れたら自動調整
@@ -226,13 +300,21 @@ function buildPlanText(
     `精算方法について：${state.settlementConfirmed ? '確認済み' : '未確認'}`,
   ]
 
+  if (guests.infant > 0) {
+    const bedLabel = BABY_BED_OPTIONS.find((opt) => opt.value === state.babyBedOption)!.label
+    lines.push(`ベビーベッドまたは畳に布団での宿泊希望：${bedLabel}`)
+
+    const selectedGoods = BABY_GOODS_ITEMS.filter((item) => state.babyGoods[item.id])
+    lines.push(`ベビーグッズの無料貸出（客室）：${selectedGoods.length > 0 ? selectedGoods.map((item) => item.label).join('、') : 'なし'}`)
+  }
+
   if (occupancy === 0) {
     lines.push('人数が未入力のため、部屋タイプ・合計金額は未確定です。')
     return lines.join('\n')
   }
 
   if (!roomType) {
-    lines.push(`この人数（${occupancy}名）に対応する部屋タイプがありません。`)
+    lines.push(`ご希望に添える部屋タイプがありません。`)
     return lines.join('\n')
   }
 
@@ -242,7 +324,7 @@ function buildPlanText(
   })
   lines.push(`　${buildingsPerDate[0].basePriceLabel}`)
 
-  lines.push(`夕食追加：${dinner ? `${dinner.label}（${yen.format(dinner.price)}）` : '追加なし'}`)
+  lines.push(`夕食追加：${dinner ? `${dinner.label}（${yen.format(dinner.price)}）` : '追加なし（夕食不要）'}`)
   lines.push(`部屋タイプ：${roomType.label}`)
 
   const result = calculatePriceAcrossDates(buildingsPerDate, dinner, roomType, guests)
@@ -272,7 +354,7 @@ function renderBuildingCard(buildingId: string, selectedDates: StayDate[], occup
       return `<p class="building-card__warning">大人・小学生・幼児のいずれかを1名以上入力してください。</p>`
     }
     if (!roomType) {
-      return `<p class="building-card__warning">この人数（${occupancy}名）に対応する部屋タイプがありません。</p>`
+      return `<p class="building-card__warning">ご希望に添える部屋タイプがありません。</p>`
     }
     const result = calculatePriceAcrossDates(buildingsPerDate, dinner, roomType, state.guests)
     return `
@@ -314,7 +396,7 @@ function renderBuildingCard(buildingId: string, selectedDates: StayDate[], occup
       <label class="field">
         <span>夕食追加オプション</span>
         <select data-role="dinner" data-building="${buildingId}">
-          <option value="" ${dinner === null ? 'selected' : ''}>追加なし</option>
+          <option value="" ${dinner === null ? 'selected' : ''}>追加なし（夕食不要）</option>
           ${reference.dinnerOptions
             .map(
               (d) =>
@@ -373,6 +455,18 @@ function attachEvents() {
 
   app.querySelector<HTMLInputElement>('#settlement-confirm')?.addEventListener('change', (e) => {
     state.settlementConfirmed = (e.target as HTMLInputElement).checked
+  })
+
+  app.querySelector<HTMLSelectElement>('#baby-bed-option')?.addEventListener('change', (e) => {
+    state.babyBedOption = (e.target as HTMLSelectElement).value as BabyBedOption
+    render()
+  })
+
+  app.querySelectorAll<HTMLInputElement>('input[data-baby-goods]').forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      const id = checkbox.dataset.babyGoods!
+      state.babyGoods[id] = checkbox.checked
+    })
   })
 
   app.querySelectorAll<HTMLInputElement>('input[data-date]').forEach((checkbox) => {

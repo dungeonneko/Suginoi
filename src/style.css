@@ -139,6 +139,47 @@ body {
   gap: 0.4rem;
 }
 
+.baby-options {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.baby-options .field select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.baby-goods {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.baby-goods__title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.baby-goods__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.4rem 1rem;
+}
+
+.baby-goods__item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
 .date-checkbox-list {
   display: flex;
   flex-direction: column;
